@@ -62,7 +62,7 @@ func (c *Counter) setFrequency(freq *Frequency) {
 	c.ClockCounter = freq.cycles
 }
 
-//returns true when overflowed
+//Step returns true when overflowed
 func (c *Counter) Step(cycles int) bool {
 	c.ClockCounter -= cycles
 

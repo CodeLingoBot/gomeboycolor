@@ -307,7 +307,7 @@ func (cpu *GbcCPU) CheckForInterrupts() bool {
 	return false
 }
 
-//Checks to see if the CPU speed should change to double (CGB only)
+//SetCPUSpeed checks to see if the CPU speed should change to double (CGB only)
 func (cpu *GbcCPU) SetCPUSpeed() {
 	var speedPrepRegister byte = cpu.mmu.ReadByte(mmu.CGB_DOUBLE_SPEED_PREP_REG)
 	if speedPrepRegister&0x01 == 0x01 {
@@ -628,33 +628,33 @@ func (cpu *GbcCPU) EI() {
 	cpu.InterruptsEnabled = true
 }
 
-//LD r,n
+//LDrn r,n
 //Load value (n) from memory address in the PC into register (r) and increment PC by 1
 func (cpu *GbcCPU) LDrn(r *byte) {
 	*r = cpu.CurrentInstruction.Operands[0]
 }
 
-//LD r,r
+//LDrr r,r
 //Load value from register (r2) into register (r1)
 func (cpu *GbcCPU) LDrr(r1 *byte, r2 *byte) {
 	*r1 = *r2
 }
 
-//LD rr, r
+//LDrr_r rr, r
 //Load value from register (r) into memory address located at register pair (RR)
 func (cpu *GbcCPU) LDrr_r(hs *byte, ls *byte, r *byte) {
 	var RR types.Word = types.Word(utils.JoinBytes(*hs, *ls))
 	cpu.WriteByte(RR, *r)
 }
 
-//LD r, rr
+//LDr_rr r, rr
 //Load value from memory address located in register pair (RR) into register (r)
 func (cpu *GbcCPU) LDr_rr(hs *byte, ls *byte, r *byte) {
 	var RR types.Word = types.Word(utils.JoinBytes(*hs, *ls))
 	*r = cpu.ReadByte(RR)
 }
 
-//LD nn,r
+//LDnn_r nn,r
 //Load value from register (r) and put it in memory address (nn) taken from the next 2 bytes of memory from the PC. Increment the PC by 2
 func (cpu *GbcCPU) LDnn_r(r *byte) {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
@@ -663,7 +663,7 @@ func (cpu *GbcCPU) LDnn_r(r *byte) {
 	cpu.WriteByte(resultAddr, *r)
 }
 
-//LD r, nn
+//LDr_nn r, nn
 //Load the value in memory address defined from the next two bytes relative to the PC and store it in register (r). Increment the PC by 2
 func (cpu *GbcCPU) LDr_nn(r *byte) {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
@@ -672,7 +672,7 @@ func (cpu *GbcCPU) LDr_nn(r *byte) {
 	*r = cpu.ReadByte(nn)
 }
 
-//LD (HL),n
+//LDhl_n (HL),n
 //Load the value (n) from the memory address in the PC and put it in the memory address designated by register pair (HL)
 func (cpu *GbcCPU) LDhl_n() {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -680,21 +680,21 @@ func (cpu *GbcCPU) LDhl_n() {
 	cpu.WriteByte(HL, value)
 }
 
-//LD r,(C)
+//LDr_ffplusc r,(C)
 //Load the value from memory addressed 0xFF00 + value in register C. Store it in register (r)
 func (cpu *GbcCPU) LDr_ffplusc(r *byte) {
 	var valueAddr types.Word = 0xFF00 + types.Word(cpu.R.C)
 	*r = cpu.ReadByte(valueAddr)
 }
 
-//LD (C),r
+//LDffplusc_r (C),r
 //Load the value from register (r) and store it in memory addressed 0xFF00 + value in register C.
 func (cpu *GbcCPU) LDffplusc_r(r *byte) {
 	var valueAddr types.Word = 0xFF00 + types.Word(cpu.R.C)
 	cpu.WriteByte(valueAddr, *r)
 }
 
-//LDD r, (HL)
+//LDDr_hl r, (HL)
 //Load the value from memory addressed in register pair (HL) and store it in register R. Decrement the HL registers
 func (cpu *GbcCPU) LDDr_hl(r *byte) {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -705,7 +705,7 @@ func (cpu *GbcCPU) LDDr_hl(r *byte) {
 	cpu.R.H, cpu.R.L = utils.SplitIntoBytes(uint16(HL))
 }
 
-//LDD (HL), r
+//LDDhl_r (HL), r
 //Load the value in register (r) and store in memory addressed in register pair (HL). Decrement the HL registers
 func (cpu *GbcCPU) LDDhl_r(r *byte) {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -716,7 +716,7 @@ func (cpu *GbcCPU) LDDhl_r(r *byte) {
 	cpu.R.H, cpu.R.L = utils.SplitIntoBytes(uint16(HL))
 }
 
-//LDI r, (HL)
+//LDIr_hl r, (HL)
 //Load the value from memory addressed in register pair (HL) and store it in register R. Increment the HL registers
 func (cpu *GbcCPU) LDIr_hl(r *byte) {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -727,7 +727,7 @@ func (cpu *GbcCPU) LDIr_hl(r *byte) {
 	cpu.R.H, cpu.R.L = utils.SplitIntoBytes(uint16(HL))
 }
 
-//LDI (HL), r
+//LDIhl_r (HL), r
 //Load the value in register (r) and store in memory addressed in register pair (HL). Increment the HL registers
 func (cpu *GbcCPU) LDIhl_r(r *byte) {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -738,20 +738,20 @@ func (cpu *GbcCPU) LDIhl_r(r *byte) {
 	cpu.R.H, cpu.R.L = utils.SplitIntoBytes(uint16(HL))
 }
 
-//LDH n, r
+//LDHn_r n, r
 func (cpu *GbcCPU) LDHn_r(r *byte) {
 	var n byte = cpu.CurrentInstruction.Operands[0]
 	cpu.WriteByte(types.Word(0xFF00)+types.Word(n), *r)
 }
 
-//LDH r, n
+//LDHr_n r, n
 //Load value (n) in register (r) and store it in memory address FF00+PC. Increment PC by 1
 func (cpu *GbcCPU) LDHr_n(r *byte) {
 	var n byte = cpu.CurrentInstruction.Operands[0]
 	*r = cpu.ReadByte((types.Word(0xFF00) + types.Word(n)))
 }
 
-//LD n, nn
+//LDn_nn n, nn
 func (cpu *GbcCPU) LDn_nn(r1, r2 *byte) {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
 	var hs byte = cpu.CurrentInstruction.Operands[1]
@@ -761,7 +761,7 @@ func (cpu *GbcCPU) LDn_nn(r1, r2 *byte) {
 	*r2 = ls
 }
 
-//LD SP, nn
+//LDSP_nn SP, nn
 func (cpu *GbcCPU) LDSP_nn() {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
 	var hs byte = cpu.CurrentInstruction.Operands[1]
@@ -769,7 +769,7 @@ func (cpu *GbcCPU) LDSP_nn() {
 	cpu.SP = types.Word(utils.JoinBytes(hs, ls))
 }
 
-//LD nn, SP
+//LDnn_SP nn, SP
 func (cpu *GbcCPU) LDnn_SP() {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
 	var hs byte = cpu.CurrentInstruction.Operands[1]
@@ -779,13 +779,13 @@ func (cpu *GbcCPU) LDnn_SP() {
 	cpu.WriteByte(addr, byte(cpu.SP&0x00FF))
 }
 
-//LD SP, rr
+//LDSP_hl SP, rr
 func (cpu *GbcCPU) LDSP_hl() {
 	cpu.SP = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
 	cpu.tick(1)
 }
 
-//LDHL SP, n
+//LDHLSP_n SP, n
 func (cpu *GbcCPU) LDHLSP_n() {
 	var n byte = cpu.CurrentInstruction.Operands[0]
 
@@ -841,13 +841,13 @@ func (cpu *GbcCPU) Pop_AF() {
 	cpu.R.F &= 0xF0
 }
 
-//ADD A,r
+//AddA_r adds A,r
 //Add the value in register (r) to register A
 func (cpu *GbcCPU) AddA_r(r *byte) {
 	cpu.R.A = cpu.addBytes(cpu.R.A, *r)
 }
 
-//ADD A,(HL)
+//AddA_hl adds A,(HL)
 //Add the value in memory addressed in register pair (HL) to register A
 func (cpu *GbcCPU) AddA_hl() {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
@@ -856,7 +856,7 @@ func (cpu *GbcCPU) AddA_hl() {
 	cpu.R.A = cpu.addBytes(cpu.R.A, value)
 }
 
-//ADD A,n
+//AddA_n adds A,n
 //Add the value in memory addressed PC to register A. Increment the PC by 1
 func (cpu *GbcCPU) AddA_n() {
 	var value byte = cpu.CurrentInstruction.Operands[0]
@@ -1138,19 +1138,19 @@ func (cpu *GbcCPU) XorA_n() {
 	cpu.R.A = cpu.xorBytes(cpu.R.A, value)
 }
 
-//CP A, r
+//CPA_r A, r
 func (cpu *GbcCPU) CPA_r(r *byte) {
 	cpu.subBytes(cpu.R.A, *r)
 }
 
-//CP A, (HL)
+//CPA_hl A, (HL)
 func (cpu *GbcCPU) CPA_hl() {
 	var hlAddr types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
 	var hlValue byte = cpu.ReadByte(hlAddr)
 	cpu.subBytes(cpu.R.A, hlValue)
 }
 
-//CP A, n
+//CPA_n A, n
 func (cpu *GbcCPU) CPA_n() {
 	var value byte = cpu.CurrentInstruction.Operands[0]
 	cpu.subBytes(cpu.R.A, value)
@@ -1192,7 +1192,7 @@ func (cpu *GbcCPU) Addhl_rr(r1, r2 *byte) {
 	cpu.tick(1)
 }
 
-//ADD HL,SP
+//Addhl_sp adds HL,SP
 func (cpu *GbcCPU) Addhl_sp() {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
 	var result types.Word = cpu.addWords(HL, cpu.SP)
@@ -1200,7 +1200,7 @@ func (cpu *GbcCPU) Addhl_sp() {
 	cpu.tick(1)
 }
 
-//ADD SP,n
+//Addsp_n adds SP,n
 func (cpu *GbcCPU) Addsp_n() {
 	cpu.tick(1)
 	var n byte = cpu.CurrentInstruction.Operands[0]
@@ -1940,7 +1940,7 @@ func (cpu *GbcCPU) Resb_hl(b byte) {
 	cpu.WriteByte(HL, result)
 }
 
-//JP nn
+//JP_nn nn
 func (cpu *GbcCPU) JP_nn() {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
 	var hs byte = cpu.CurrentInstruction.Operands[1]
@@ -1950,14 +1950,14 @@ func (cpu *GbcCPU) JP_nn() {
 	cpu.tick(1)
 }
 
-//JP (HL)
+//JP_hl (HL)
 func (cpu *GbcCPU) JP_hl() {
 	var HL types.Word = types.Word(utils.JoinBytes(cpu.R.H, cpu.R.L))
 	cpu.PC = HL
 	cpu.PCJumped = true
 }
 
-//JP cc, nn
+//JPcc_nn cc, nn
 func (cpu *GbcCPU) JPcc_nn(flag int, jumpWhen bool) {
 	var ls byte = cpu.CurrentInstruction.Operands[0]
 	var hs byte = cpu.CurrentInstruction.Operands[1]
@@ -1970,7 +1970,7 @@ func (cpu *GbcCPU) JPcc_nn(flag int, jumpWhen bool) {
 	}
 }
 
-//JR n
+//JR_n n
 func (cpu *GbcCPU) JR_n() {
 	var n byte = cpu.CurrentInstruction.Operands[0]
 
@@ -1989,7 +1989,7 @@ func (cpu *GbcCPU) JR_n() {
 
 }
 
-//JR cc, nn
+//JRcc_nn cc, nn
 func (cpu *GbcCPU) JRcc_nn(flag int, jumpWhen bool) {
 	var n byte = cpu.CurrentInstruction.Operands[0]
 

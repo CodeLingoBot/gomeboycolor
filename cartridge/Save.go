@@ -33,7 +33,7 @@ func (s *Save) Validate() error {
 	return nil
 }
 
-//Takes a byte array, converts it to a base64 string and compresses it using ZLIB.
+//DeflateBank takes a byte array, converts it to a base64 string and compresses it using ZLIB.
 func (s *Save) DeflateBank(bank []byte) (string, error) {
 	var outBuffer bytes.Buffer
 	zl := zlib.NewWriter(&outBuffer)
@@ -47,7 +47,7 @@ func (s *Save) DeflateBank(bank []byte) (string, error) {
 	return compressedBankStr, nil
 }
 
-//Takes a base64 string and decompresses it using ZLIB into a byte array
+//InflateBank takes a base64 string and decompresses it using ZLIB into a byte array
 func (s *Save) InflateBank(bankStr string) ([]byte, error) {
 	compressedBank, err := base64.StdEncoding.DecodeString(bankStr)
 	if err != nil {
